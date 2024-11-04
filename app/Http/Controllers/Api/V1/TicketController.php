@@ -13,16 +13,7 @@ class TicketController extends Controller
 {
     public function index(Request $request)
     {
-        // $queryItems = $filter->transform($request);
-        // $queryItems = [];
-
-        // if (count($queryItems) == 0) {
-        //     return new TicketCollection(Ticket::paginate());
-        // } else {
-        //     return new TicketCollection(Ticket::where($queryItems)->paginate());
-        // }
-
-        $tickets = Ticket::with('user', 'topic', 'department')->orderBy('created_at', 'desc')->simplePaginate(5);
+        $tickets = Ticket::with('user', 'topic', 'department')->orderBy('created_at', 'desc')->paginate();
 
         return TicketResource::collection($tickets);
     }

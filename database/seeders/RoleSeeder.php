@@ -13,12 +13,48 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        $admin = Role::create(['name' => 'admin']);
-        $agent = Role::create(['name' => 'agent']);
-        $employee = Role::create(['name' => 'employee']);
+        Role::create(['name' => 'super admin']);
 
-        $admin->givePermissionTo('dashboard');
-        $agent->givePermissionTo('dashboard');
-        $employee->givePermissionTo('dashboard');
+        $admin = Role::create(['name' => 'admin']);
+        $admin->givePermissionTo([
+            'dashboard',
+            'create users',
+            'read users',
+            'update users',
+            'delete users',
+            'create topics',
+            'read topics',
+            'update topics',
+            'delete topics',
+            'read departments',
+        ]);
+
+        $support1 = Role::create(['name' => 'support 1']);
+        $support1->givePermissionTo([
+            'dashboard',
+            'create tickets',
+            'read tickets',
+            'update tickets',
+            'delete tickets',
+            'assign tickets'
+        ]);
+
+        $support2 = Role::create(['name' => 'support 2']);
+        $support2->givePermissionTo([
+            'dashboard',
+            'create tickets',
+            'read tickets',
+            'update tickets',
+            'delete tickets',
+        ]);
+
+        $support3 = Role::create(['name' => 'support 3']);
+        $support3->givePermissionTo([
+            'dashboard',
+            'create tickets',
+            'read tickets',
+            'update tickets',
+            'delete tickets',
+        ]);
     }
 }

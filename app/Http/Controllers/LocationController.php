@@ -2,64 +2,65 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LocationRequest;
+use App\Http\Resources\LocationResource;
 use App\Models\Location;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class LocationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        Gate::authorize('viewAny', Location::class);
+
+        $locations = Location::all();
+
+        return inertia('Locations/Index', [
+            'locations' => LocationResource::collection($locations)
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        Gate::authorize('create', Location::class);
+
+        return inertia('Locations/Create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(LocationRequest $request)
     {
-        //
+        Gate::authorize('create', Location::class);
+
+        Location::create($request->validated());
+
+        return redirect()->route('locations.index')->with('success', 'Data berhasil disimpan');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Location $location)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Location $location)
     {
-        //
+        Gate::authorize('update', $location);
+
+        return inertia('Locations/Edit', [
+            'location' => $location
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Location $location)
+    public function update(LocationRequest $request, Location $location)
     {
-        //
+        Gate::authorize('update', $location);
+
+        $location->update($request->validated());
+
+        return redirect()->route('locations.index')->with('success', 'Data berhasil diubah');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Location $location)
     {
-        //
+        Gate::authorize('delete', $location);
+
+        $location->delete();
+
+        return redirect()->route('locations.index')->with('success', 'Data berhasil dihapus');
     }
 }

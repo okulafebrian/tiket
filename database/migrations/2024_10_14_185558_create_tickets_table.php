@@ -24,6 +24,7 @@ return new class extends Migration
             $table->unsignedInteger('status')->default(TicketStatus::OPEN);
             $table->unsignedInteger('category');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

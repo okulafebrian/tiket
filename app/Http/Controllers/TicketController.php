@@ -7,9 +7,9 @@ use App\Enums\TicketStatus;
 use App\Http\Requests\TicketRequest;
 use App\Http\Resources\DepartmentResource;
 use App\Http\Resources\LocationResource;
+use App\Http\Resources\StatusResource;
 use App\Http\Resources\TicketCategoryResource;
 use App\Http\Resources\TicketResource;
-use App\Http\Resources\TicketStatusResource;
 use App\Http\Resources\TopicResource;
 use App\Http\Resources\UserResource;
 use App\Models\Department;
@@ -40,25 +40,31 @@ class TicketController extends Controller
                 return $query->where('department_id', $department);
             })
             ->orderBy('created_at', 'desc')
-            ->simplePaginate(10)
+            ->paginate(8)
             ->withQueryString();
 
         return inertia('Tickets/Index', [
             'parameters' => $request->only(['status', 'department']),
             'tickets' => TicketResource::collection($tickets),
-            'statuses' => TicketStatusResource::collection(TicketStatus::cases()),
+            'statuses' => StatusResource::collection(TicketStatus::cases()),
             'departments' => DepartmentResource::collection(Department::all())
         ]);
     }
 
-    public function history()
+    public function history(Request $request)
     {
-        $user = 'admin@bpkpenaburjakarta.or.id';
-
-        $tickets = Ticket::with('topic')->where('user', $user)->orderBy('created_at', 'desc')->get();
+        $tickets = Ticket::with('user', 'topic')
+            ->when($request->status, function ($query, $status) {
+                return $query->where('status', $status);
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(4)
+            ->withQueryString();
 
         return inertia('Tickets/History', [
-            'tickets' => $tickets
+            'parameters' => $request->only(['status']),
+            'tickets' => TicketResource::collection($tickets),
+            'statuses' => StatusResource::collection(TicketStatus::cases()),
         ]);
     }
 
@@ -74,14 +80,12 @@ class TicketController extends Controller
     public function store(TicketRequest $request)
     {
         $topic = Topic::with('department')->find($request->topic_id);
-        $department = $topic->department;
 
-        Ticket::create([
-            'reference_number' => $this->ticketService->getReferenceNumber($department),
-            'topic_id' => $request->topic_id,
+        $ticket = $topic->tickets()->create([
+            'reference_number' => $this->ticketService->getReferenceNumber($topic->department),
+            'department_id' => $topic->department->id,
             'category' => $request->category,
             'location_id' => $request->location_id,
-            'department_id' => $department->id,
             'description' => $request->description,
             'user' => Auth::user()->email,
         ]);
@@ -97,25 +101,26 @@ class TicketController extends Controller
     public function edit(Ticket $ticket)
     {
         return inertia('Tickets/Edit', [
-            'ticket' => TicketResource::make($ticket->load('user', 'topic', 'location', 'department', 'comments')),
-            'statuses' => TicketStatusResource::collection(TicketStatus::cases()),
+            'ticket' => TicketResource::make($ticket->load('user', 'topic', 'location', 'department', 'assignees', 'comments')),
+            'statuses' => StatusResource::collection(TicketStatus::cases()),
             'categories' => TicketCategoryResource::collection(TicketCategory::cases()),
             'departments' => DepartmentResource::collection(Department::all()),
             'users' => UserResource::collection(User::all())
         ]);
     }
 
-    public function update(Request $request, Ticket $ticket)
+    public function update(TicketRequest $request, Ticket $ticket)
     {
-        $assignees = explode(',', $request->assignees);
+        $ticket->update($request->validated());
 
-        $ticket->update([
-            'status' => $request->status,
-            'department_id' => $request->department_id,
-            'category' => $request->category,
-        ]);
+        $ticket->assignees()->sync($request->validated('assignees'));
 
-        $ticket->assignees()->attach($assignees);
+        if ($request->comment['description']) {
+            $ticket->comments()->create([
+                'user_id' => Auth::id(),
+                'description' => $request->comment['description']
+            ]);
+        }
 
         return back()->with('message', 'Data berhasil disimpan');
     }

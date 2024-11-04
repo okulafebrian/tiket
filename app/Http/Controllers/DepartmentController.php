@@ -2,64 +2,69 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DepartmentRequest;
+use App\Http\Resources\DepartmentResource;
 use App\Models\Department;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class DepartmentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        Gate::authorize('viewAny', Department::class);
+
+        $departments = Department::withCount('users', 'topics')->get();
+
+        return inertia('Departments/Index', [
+            'departments' => DepartmentResource::collection($departments)
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        Gate::authorize('create', Department::class);
+
+        return inertia('Departments/Create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(DepartmentRequest $request)
     {
-        //
+        Gate::authorize('create', Department::class);
+
+        Department::create($request->validated());
+
+        return redirect()->route('departments.index')->with('success', 'Data berhasil disimpan');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Department $department)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Department $department)
     {
-        //
+        Gate::authorize('update', $department);
+
+        return inertia('Departments/Edit', [
+            'department' => $department
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Department $department)
+    public function update(DepartmentRequest $request, Department $department)
     {
-        //
+        Gate::authorize('update', $department);
+
+        $department->update($request->validated());
+
+        return redirect()->route('departments.index')->with('success', 'Data berhasil diubah');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Department $department)
     {
-        //
+        Gate::authorize('delete', $department);
+
+        $department->delete();
+
+        return redirect()->route('departments.index')->with('success', 'Data berhasil dihapus');
     }
 }

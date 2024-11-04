@@ -1,20 +1,5 @@
 import AgentLayout from "@/Layouts/AgentLayout";
-import { Head, router } from "@inertiajs/react";
-import {
-    Button,
-    Chip,
-    Dropdown,
-    DropdownItem,
-    DropdownMenu,
-    DropdownTrigger,
-    Input,
-    Table,
-    TableBody,
-    TableCell,
-    TableColumn,
-    TableHeader,
-    TableRow,
-} from "@nextui-org/react";
+import { Head } from "@inertiajs/react";
 
 export default function Dashboard({ statuses }) {
     return (
@@ -25,8 +10,11 @@ export default function Dashboard({ statuses }) {
                 <div className="text-2xl font-semibold">Dashboard</div>
 
                 <div className="grid grid-cols-6 gap-3">
-                    {statuses.map((status) => (
-                        <div className="border rounded-2xl p-4 space-y-1">
+                    {statuses.map((status, index) => (
+                        <div
+                            key={index}
+                            className="border rounded-2xl p-4 space-y-1"
+                        >
                             <div>Tiket {status.name}</div>
                             <div className="text-xl font-medium">
                                 {status.tickets_count}

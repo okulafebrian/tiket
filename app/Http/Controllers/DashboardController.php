@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\TicketStatus;
-use App\Http\Resources\TicketStatusResource;
 use App\Models\Ticket;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller

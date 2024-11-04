@@ -16,6 +16,13 @@ class UserSeeder extends Seeder
     {
         User::create([
             'department_id' => 1,
+            'name' => 'Super Admin',
+            'email' => 'superadmin@bpkpenaburjakarta.or.id',
+            'password' => Hash::make('abc123')
+        ])->assignRole('super admin');
+
+        User::create([
+            'department_id' => 1,
             'name' => 'Admin',
             'email' => 'admin@bpkpenaburjakarta.or.id',
             'password' => Hash::make('abc123')
@@ -23,9 +30,9 @@ class UserSeeder extends Seeder
 
         User::create([
             'department_id' => 1,
-            'name' => 'Agent',
-            'email' => 'agent@bpkpenaburjakarta.or.id',
+            'name' => 'Help Desk',
+            'email' => 'helpdesk@bpkpenaburjakarta.or.id',
             'password' => Hash::make('abc123')
-        ])->assignRole('admin');
+        ])->assignRole('support 1');
     }
 }

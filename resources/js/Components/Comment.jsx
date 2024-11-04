@@ -1,22 +1,9 @@
 import { Icon } from "@iconify-icon/react";
-import { Head, useForm, usePage } from "@inertiajs/react";
-import { Avatar, Button, Textarea } from "@nextui-org/react";
-import { useRef, useState } from "react";
+import { Button, Textarea } from "@nextui-org/react";
+import React, { useRef } from "react";
 import Attachment from "./Attachment";
 
-export default function CommentBox({ ticket }) {
-    const { data, setData, post, processing, errors, reset } = useForm({
-        ticket_id: ticket.id,
-        description: "",
-        attachments: [],
-    });
-
-    const submit = (e) => {
-        e.preventDefault();
-
-        post(route("comments.store"));
-    };
-
+export default function Comment({ data, setData }) {
     const inputFile = useRef(null);
 
     const handleClick = () => {
@@ -25,18 +12,24 @@ export default function CommentBox({ ticket }) {
 
     const addAttachment = (e) => {
         const files = Array.from(e.target.files);
-        setData("attachments", [...data.attachments, ...files]);
+        setData("comment", {
+            ...data.comment,
+            attachments: [...data.comment.attachments, ...files],
+        });
         e.target.value = null;
     };
 
     const removeAttachment = (index) => {
-        const newAttachments = [...data.attachments];
+        const newAttachments = [...data.comment.attachments];
         newAttachments.splice(index, 1);
-        setData("attachments", newAttachments);
+        setData("comment", {
+            ...data.comment,
+            attachments: newAttachments,
+        });
     };
 
     return (
-        <form onSubmit={submit}>
+        <>
             <input
                 ref={inputFile}
                 multiple
@@ -59,24 +52,21 @@ export default function CommentBox({ ticket }) {
                         fullWidth
                         minRows={1}
                         placeholder="Tulis komentar..."
-                        onChange={(e) => setData("description", e.target.value)}
+                        onChange={(e) =>
+                            setData("comment", {
+                                ...data.comment,
+                                description: e.target.value,
+                            })
+                        }
                         variant="bordered"
                         size="lg"
                     />
-                    <Button
-                        type="submit"
-                        color="primary"
-                        size="lg"
-                        isDisabled={!data.description.trim()}
-                    >
-                        Kirim
-                    </Button>
                 </div>
 
-                {data.attachments.length > 0 && (
+                {data.comment.attachments.length > 0 && (
                     <div className="grid grid-cols-3 gap-3">
-                        {data.attachments.map((attachment, index) => (
-                            <Attachment data={attachment}>
+                        {data.comment.attachments.map((attachment, index) => (
+                            <Attachment key={index} data={attachment}>
                                 <Button
                                     isIconOnly
                                     size="sm"
@@ -93,6 +83,6 @@ export default function CommentBox({ ticket }) {
                     </div>
                 )}
             </div>
-        </form>
+        </>
     );
 }

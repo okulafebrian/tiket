@@ -17,7 +17,7 @@ class TicketResource extends JsonResource
         return [
             'id' => $this->id,
             'category' => TicketCategoryResource::make($this->category),
-            'status' => TicketStatusResource::make($this->status),
+            'status' => StatusResource::make($this->status),
             'user' => $this->user,
             'department' => DepartmentResource::make($this->whenLoaded('department')),
             'topic' => TopicResource::make($this->whenLoaded('topic')),
@@ -25,8 +25,8 @@ class TicketResource extends JsonResource
             'reference_number' => $this->reference_number,
             'description' => $this->description,
             'comments' => CommentResource::collection($this->whenLoaded('comments')),
-            'assignees' => $this->assignees->pluck('id')->implode(','),
-            'created_at' => $this->created_at,
+            'assignees' => UserResource::collection($this->whenLoaded('assignees')),
+            'created_at' => $this->created_at->format('d M Y'),
         ];
     }
 }

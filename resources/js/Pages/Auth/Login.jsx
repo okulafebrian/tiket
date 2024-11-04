@@ -1,19 +1,17 @@
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, useForm } from "@inertiajs/react";
 import { Button, Card, CardBody, CardHeader, Input } from "@nextui-org/react";
 
-export default function Login({ status, canResetPassword }) {
+export default function Login({ status, canResetPassword, credential }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         email: "",
-        password: "",
+        credential: credential,
         remember: false,
     });
 
     const submit = (e) => {
         e.preventDefault();
 
-        post(route("login"), {
-            onFinish: () => reset("password"),
-        });
+        post(route("login"));
     };
 
     return (
@@ -31,16 +29,6 @@ export default function Login({ status, canResetPassword }) {
                                 value={data.email}
                                 onChange={(e) =>
                                     setData("email", e.target.value)
-                                }
-                                required
-                            />
-                            <Input
-                                id="password"
-                                type="password"
-                                label="Password"
-                                value={data.password}
-                                onChange={(e) =>
-                                    setData("password", e.target.value)
                                 }
                                 required
                             />

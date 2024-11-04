@@ -1,12 +1,10 @@
-import { usePage } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import {
     Avatar,
-    Button,
     Dropdown,
     DropdownItem,
     DropdownMenu,
     DropdownTrigger,
-    Link,
 } from "@nextui-org/react";
 
 export default function Guest({ children }) {
@@ -15,9 +13,12 @@ export default function Guest({ children }) {
     return (
         <div className="h-screen flex flex-col">
             <nav className="px-60 py-3 flex justify-between items-center shadow-sm">
-                <div className="text-xl font-semibold leading-tight text-gray-800">
+                <Link
+                    href={route("home")}
+                    className="text-xl font-semibold leading-tight text-gray-800"
+                >
                     Tiket
-                </div>
+                </Link>
 
                 <Dropdown>
                     <DropdownTrigger>
@@ -26,14 +27,14 @@ export default function Guest({ children }) {
                     <DropdownMenu>
                         <DropdownItem
                             key="mytickets"
-                            href={route("tickets.history")}
+                            onClick={() => router.get(route("tickets.history"))}
                         >
                             Tiket Saya
                         </DropdownItem>
                         <DropdownItem
                             key="logout"
                             color="danger"
-                            href={route("logout")}
+                            onClick={() => router.post(route("logout"))}
                         >
                             Keluar
                         </DropdownItem>

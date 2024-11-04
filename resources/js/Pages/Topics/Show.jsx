@@ -9,7 +9,7 @@ import {
     Textarea,
 } from "@nextui-org/react";
 
-export default function Show({ topic, categories, departments }) {
+export default function Show({ topic, categories, locations }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         topic_id: topic.id,
         description: "",
@@ -46,6 +46,22 @@ export default function Show({ topic, categories, departments }) {
                                 {categories.map((category) => (
                                     <SelectItem key={category.id}>
                                         {category.name}
+                                    </SelectItem>
+                                ))}
+                            </Select>
+                            <Select
+                                id="location"
+                                label="Lokasi Kejadian"
+                                placeholder="Pilih lokasi kejadian"
+                                labelPlacement="outside"
+                                selectedKeys={[data.location]}
+                                onChange={(e) =>
+                                    setData("location", e.target.value)
+                                }
+                            >
+                                {locations.map((location) => (
+                                    <SelectItem key={location.id}>
+                                        {location.name}
                                     </SelectItem>
                                 ))}
                             </Select>

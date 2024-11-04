@@ -22,10 +22,23 @@ class TicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'topic_id' => 'required',
-            'category' => 'required',
-            'location_id' => 'required',
-            'description' => 'required'
+            'topic_id' => [
+                request()->isMethod('post') ? 'required' : 'nullable'
+            ],
+            'category' => ['required'],
+            'location_id' => [
+                request()->isMethod('post') ? 'required' : 'nullable'
+            ],
+            'description' => [
+                request()->isMethod('post') ? 'required' : 'nullable'
+            ],
+            'department_id' => [
+                request()->isMethod('post') ? 'nullable' : 'required'
+            ],
+            'status' => [
+                request()->isMethod('post') ? 'nullable' : 'required'
+            ],
+            'assignees' => ['nullable'],
         ];
     }
 }

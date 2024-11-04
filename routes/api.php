@@ -15,4 +15,4 @@ Route::get('medias/{uuid}/download', function ($uuid) {
 
 Route::prefix('v1')->group(function () {
     Route::apiResource('tickets', TicketController::class);
-});
+})->middleware('auth:sanctum');

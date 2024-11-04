@@ -18,7 +18,10 @@ class DepartmentResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'code' => $this->code,
-            'topics' => TopicResource::collection($this->whenLoaded('topics'))
+            'status' => StatusResource::make($this->status),
+            'topics' => TopicResource::collection($this->whenLoaded('topics')),
+            'users_count' => $this->whenCounted('users'),
+            'topics_count' => $this->whenCounted('topics')
         ];
     }
 }

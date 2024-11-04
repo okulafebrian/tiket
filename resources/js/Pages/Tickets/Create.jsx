@@ -1,5 +1,5 @@
 import AgentLayout from "@/Layouts/AgentLayout";
-import { Head, useForm } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import {
     Autocomplete,
     AutocompleteItem,
@@ -27,11 +27,11 @@ export default function Create({ categories, locations, topics }) {
         <AgentLayout>
             <Head title="Tiket Baru" />
 
-            <div className="px-10 py-8 space-y-8">
-                <div className="text-2xl font-semibold">Tiket Baru</div>
+            <form onSubmit={submit}>
+                <div className="px-10 py-8 space-y-8">
+                    <div className="text-2xl font-semibold">Tiket Baru</div>
 
-                <form onSubmit={submit}>
-                    <div className="w-1/2 space-y-6">
+                    <div className="w-1/2 grid grid-cols-2 gap-6">
                         <Autocomplete
                             id="topic_id"
                             label="Topik"
@@ -42,6 +42,7 @@ export default function Create({ categories, locations, topics }) {
                             onSelectionChange={(value) =>
                                 setData("topic_id", value)
                             }
+                            className="col-span-2"
                         >
                             {(topic) => (
                                 <AutocompleteItem key={topic.id}>
@@ -50,40 +51,39 @@ export default function Create({ categories, locations, topics }) {
                             )}
                         </Autocomplete>
 
-                        <div className="grid grid-cols-2 gap-6">
-                            <Select
-                                id="category"
-                                label="Kategori"
-                                placeholder="Pilih kategori"
-                                labelPlacement="outside"
-                                selectedKeys={[data.category]}
-                                onChange={(e) =>
-                                    setData("category", e.target.value)
-                                }
-                            >
-                                {categories.map((category) => (
-                                    <SelectItem key={category.id}>
-                                        {category.name}
-                                    </SelectItem>
-                                ))}
-                            </Select>
-                            <Select
-                                id="location_id"
-                                label="Lokasi Kejadian"
-                                placeholder="Pilih lokasi"
-                                labelPlacement="outside"
-                                selectedKeys={[data.location_id]}
-                                onChange={(e) =>
-                                    setData("location_id", e.target.value)
-                                }
-                            >
-                                {locations.map((location) => (
-                                    <SelectItem key={location.id}>
-                                        {location.name}
-                                    </SelectItem>
-                                ))}
-                            </Select>
-                        </div>
+                        <Select
+                            id="category"
+                            label="Kategori"
+                            placeholder="Pilih kategori"
+                            labelPlacement="outside"
+                            selectedKeys={[data.category]}
+                            onChange={(e) =>
+                                setData("category", e.target.value)
+                            }
+                        >
+                            {categories.map((category) => (
+                                <SelectItem key={category.id}>
+                                    {category.name}
+                                </SelectItem>
+                            ))}
+                        </Select>
+
+                        <Select
+                            id="location_id"
+                            label="Lokasi Kejadian"
+                            placeholder="Pilih lokasi"
+                            labelPlacement="outside"
+                            selectedKeys={[data.location_id]}
+                            onChange={(e) =>
+                                setData("location_id", e.target.value)
+                            }
+                        >
+                            {locations.map((location) => (
+                                <SelectItem key={location.id}>
+                                    {location.name}
+                                </SelectItem>
+                            ))}
+                        </Select>
 
                         <Textarea
                             id="description"
@@ -95,13 +95,24 @@ export default function Create({ categories, locations, topics }) {
                             }
                             className="col-span-2"
                         />
+                    </div>
 
+                    <div className="flex gap-3">
                         <Button type="submit" color="primary" size="lg">
                             Kirim
                         </Button>
+                        <Button
+                            href={route("tickets.index")}
+                            as={Link}
+                            color="primary"
+                            variant="light"
+                            size="lg"
+                        >
+                            Batal
+                        </Button>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </AgentLayout>
     );
 }

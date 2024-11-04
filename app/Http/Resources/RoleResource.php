@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TicketStatusResource extends JsonResource
+class RoleResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,9 +15,10 @@ class TicketStatusResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->value,
-            'name' => $this->getLabelText(),
-            'color' => $this->getLabelColor()
+            'id' => $this->id,
+            'name' => $this->name,
+            'permissions' => PermissionResource::collection($this->whenLoaded('permissions')),
+            'permissions_count' => $this->whenCounted('permissions')
         ];
     }
 }

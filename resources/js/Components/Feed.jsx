@@ -1,4 +1,5 @@
-import { Button, Link, User } from "@nextui-org/react";
+import { Button, User } from "@nextui-org/react";
+import { Link } from "@inertiajs/react";
 import Attachment from "./Attachment";
 import { Icon } from "@iconify-icon/react";
 

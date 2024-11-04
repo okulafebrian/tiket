@@ -1,13 +1,8 @@
 import AgentLayout from "@/Layouts/AgentLayout";
 import { Icon } from "@iconify-icon/react";
-import { Head, router } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import {
-    Button,
     Chip,
-    Dropdown,
-    DropdownItem,
-    DropdownMenu,
-    DropdownTrigger,
     Input,
     Pagination,
     Select,
@@ -19,58 +14,26 @@ import {
     TableHeader,
     TableRow,
 } from "@nextui-org/react";
-import React, { useEffect } from "react";
+import React from "react";
 
 export default function Index({ parameters, tickets, statuses, departments }) {
-    // const [filters, setFilters] = React.useState({
-    //     page: tickets.meta.current_page,
-    //     status: parameters.status ?? "",
-    //     department: parameters.department ?? "",
-    // });
+    const [filters, setFilters] = React.useState({
+        page: tickets.meta.current_page,
+        status: parameters.status ?? "",
+        department: parameters.department ?? "",
+    });
 
-    // const updateFilters = (newFilters) => {
-    //     const updatedFilters = { ...filters, ...newFilters };
-    //     setFilters(updatedFilters);
+    const updateFilters = (newFilters) => {
+        const updatedFilters = { ...filters, ...newFilters };
+        setFilters(updatedFilters);
 
-    //     const queryParams = new URLSearchParams();
-
-    //     Object.entries(updatedFilters).forEach(([key, value]) => {
-    //         if (value !== null && value !== undefined && value !== "") {
-    //             queryParams.append(key, value);
-    //         }
-    //     });
-
-    //     const queryString = queryParams.toString();
-
-    //     const url = `/tickets${queryString ? `?${queryString}` : ""}`;
-
-    //     router.visit(url, {
-    //         preserveState: true,
-    //         preserveScroll: true,
-    //         only: ["tickets"],
-    //     });
-    // };
-
-    // const handlePageChange = (page) => {
-    //     updateFilters({ page });
-    // };
-
-    // const handleStatusChange = (value) => {
-    //     updateFilters({ status: Array.from(value)[0] || "", page: 1 });
-    // };
-
-    // const handleDepartmentChange = (value) => {
-    //     updateFilters({ department: Array.from(value)[0] || "", page: 1 });
-    // };
-
-    const [page, setPage] = React.useState(tickets.meta.current_page);
-    const [status, setStatus] = React.useState(new Set([]));
-    const [department, setDepartment] = React.useState(new Set([]));
-
-    useEffect(() => {
         const queryParams = new URLSearchParams();
 
-        queryParams.append("page", page);
+        Object.entries(updatedFilters).forEach(([key, value]) => {
+            if (value !== null && value !== undefined && value !== "") {
+                queryParams.append(key, value);
+            }
+        });
 
         const queryString = queryParams.toString();
 
@@ -81,13 +44,25 @@ export default function Index({ parameters, tickets, statuses, departments }) {
             preserveScroll: true,
             only: ["tickets"],
         });
-    }, [page, status, department]);
+    };
+
+    const handlePageChange = (page) => {
+        updateFilters({ page });
+    };
+
+    const handleStatusChange = (value) => {
+        updateFilters({ status: Array.from(value)[0] || "", page: 1 });
+    };
+
+    const handleDepartmentChange = (value) => {
+        updateFilters({ department: Array.from(value)[0] || "", page: 1 });
+    };
 
     return (
         <AgentLayout>
             <Head title="Tiket" />
 
-            <div className="px-10 py-8 space-y-4">
+            <div className="px-10 pt-8 pb-20 space-y-6">
                 <div className="text-2xl font-semibold">Tiket</div>
 
                 <div className="flex gap-3">
@@ -99,9 +74,9 @@ export default function Index({ parameters, tickets, statuses, departments }) {
                     <Select
                         aria-label="Status"
                         placeholder="Status"
-                        selectedKeys={status}
+                        selectedKeys={filters.status}
                         className="w-40"
-                        onSelectionChange={setStatus}
+                        onSelectionChange={handleStatusChange}
                     >
                         {statuses.map((status) => (
                             <SelectItem key={status.id}>
@@ -112,9 +87,9 @@ export default function Index({ parameters, tickets, statuses, departments }) {
                     <Select
                         aria-label="Department"
                         placeholder="Departemen"
-                        selectedKeys={department}
+                        selectedKeys={filters.department}
                         className="w-40"
-                        onSelectionChange={setDepartment}
+                        onSelectionChange={handleDepartmentChange}
                     >
                         {departments.map((department) => (
                             <SelectItem key={department.id}>
@@ -127,10 +102,12 @@ export default function Index({ parameters, tickets, statuses, departments }) {
                 <div className="border rounded-xl p-4">
                     <Table removeWrapper aria-label="Ticket table">
                         <TableHeader>
+                            <TableColumn>NO</TableColumn>
                             <TableColumn>TOPIK</TableColumn>
                             <TableColumn>DEPARTEMEN</TableColumn>
-                            <TableColumn>PELAPOR</TableColumn>
                             <TableColumn>STATUS</TableColumn>
+                            <TableColumn>PELAPOR</TableColumn>
+                            <TableColumn>TANGGAL</TableColumn>
                         </TableHeader>
                         <TableBody
                             items={tickets.data}
@@ -138,30 +115,46 @@ export default function Index({ parameters, tickets, statuses, departments }) {
                         >
                             {(item) => (
                                 <TableRow key={item.id}>
-                                    <TableCell>{item.topic.name}</TableCell>
+                                    <TableCell>
+                                        {item.reference_number}
+                                    </TableCell>
+                                    <TableCell>
+                                        <Link
+                                            href={route(
+                                                "tickets.edit",
+                                                item.id
+                                            )}
+                                        >
+                                            {item.topic?.name ?? "N/A"}
+                                        </Link>
+                                    </TableCell>
                                     <TableCell>
                                         {item.department.name}
                                     </TableCell>
-                                    <TableCell>{item.user}</TableCell>
                                     <TableCell>
-                                        <Chip color={item.status.color}>
+                                        <Chip
+                                            color={item.status.color}
+                                            variant="flat"
+                                        >
                                             {item.status.name}
                                         </Chip>
                                     </TableCell>
+                                    <TableCell>{item.user}</TableCell>
+                                    <TableCell>{item.created_at}</TableCell>
                                 </TableRow>
                             )}
                         </TableBody>
                     </Table>
                 </div>
 
-                <div>
+                <div className="flex justify-center">
                     <Pagination
                         total={tickets.meta.per_page}
                         isCompact
                         showControls
                         color="primary"
-                        page={page}
-                        onChange={setPage}
+                        page={filters.page}
+                        onChange={handlePageChange}
                     />
                 </div>
             </div>

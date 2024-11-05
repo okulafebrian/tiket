@@ -39,12 +39,17 @@ class TicketController extends Controller
             ->when($request->department, function ($query, $department) {
                 return $query->where('department_id', $department);
             })
+            ->when($request->search, function ($query, $search) {
+                return $query->whereHas('topic', function ($q) use ($search) {
+                    $q->where('name', 'LIKE', "%{$search}%");
+                });
+            })
             ->orderBy('created_at', 'desc')
             ->paginate(8)
             ->withQueryString();
 
         return inertia('Tickets/Index', [
-            'parameters' => $request->only(['status', 'department']),
+            'parameters' => $request->only(['status', 'department', 'search']),
             'tickets' => TicketResource::collection($tickets),
             'statuses' => StatusResource::collection(TicketStatus::cases()),
             'departments' => DepartmentResource::collection(Department::all())
@@ -90,7 +95,7 @@ class TicketController extends Controller
             'user' => Auth::user()->email,
         ]);
 
-        return redirect()->route('tickets.index');
+        return redirect()->route('tickets.index')->with('success', 'Data berhasil disimpan');
     }
 
     public function show(Ticket $ticket)
@@ -122,7 +127,7 @@ class TicketController extends Controller
             ]);
         }
 
-        return back()->with('message', 'Data berhasil disimpan');
+        return back()->with('message', 'Data berhasil diubah');
     }
 
     public function destroy(Ticket $ticket)

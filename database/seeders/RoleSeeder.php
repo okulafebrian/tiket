@@ -26,7 +26,6 @@ class RoleSeeder extends Seeder
             'read topics',
             'update topics',
             'delete topics',
-            'read departments',
         ]);
 
         $support1 = Role::create(['name' => 'support 1']);

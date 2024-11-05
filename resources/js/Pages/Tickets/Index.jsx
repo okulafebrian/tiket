@@ -17,45 +17,101 @@ import {
 import React from "react";
 
 export default function Index({ parameters, tickets, statuses, departments }) {
-    const [filters, setFilters] = React.useState({
+    const [data, setData] = React.useState({
         page: tickets.meta.current_page,
-        status: parameters.status ?? "",
-        department: parameters.department ?? "",
+        status: parameters.status ?? [],
+        department: parameters.department ?? [],
+        search: parameters.search ?? "",
     });
 
     const updateFilters = (newFilters) => {
-        const updatedFilters = { ...filters, ...newFilters };
-        setFilters(updatedFilters);
+        const searchParams = new URLSearchParams(window.location.search);
 
-        const queryParams = new URLSearchParams();
-
-        Object.entries(updatedFilters).forEach(([key, value]) => {
-            if (value !== null && value !== undefined && value !== "") {
-                queryParams.append(key, value);
+        if (newFilters.status !== undefined) {
+            if (
+                newFilters.status === "" ||
+                newFilters.status === null ||
+                newFilters.status.length < 1
+            ) {
+                searchParams.delete("status");
+            } else {
+                searchParams.set("status", newFilters.status);
             }
-        });
+            searchParams.delete("page");
 
-        const queryString = queryParams.toString();
+            setData((prev) => ({
+                ...prev,
+                status: newFilters.status,
+                page: 1,
+            }));
+        }
 
-        const url = `/tickets${queryString ? `?${queryString}` : ""}`;
+        if (newFilters.department !== undefined) {
+            if (
+                newFilters.department === "" ||
+                newFilters.department === null ||
+                newFilters.department.length < 1
+            ) {
+                searchParams.delete("department");
+            } else {
+                searchParams.set("department", newFilters.department);
+            }
+            searchParams.delete("page");
 
-        router.visit(url, {
+            setData((prev) => ({
+                ...prev,
+                department: newFilters.department,
+                page: 1,
+            }));
+        }
+
+        if (newFilters.page !== undefined) {
+            if (newFilters.page > 1) {
+                searchParams.set("page", newFilters.page);
+            } else {
+                searchParams.delete("page");
+            }
+
+            setData((prev) => ({
+                ...prev,
+                page: newFilters.page,
+            }));
+        }
+
+        if (newFilters.search !== undefined) {
+            if (newFilters.search.length > 1) {
+                searchParams.set("search", newFilters.search);
+            } else {
+                searchParams.delete("search");
+            }
+
+            setData((prev) => ({
+                ...prev,
+                search: newFilters.search,
+            }));
+        }
+
+        router.visit(route("tickets.index") + "?" + searchParams.toString(), {
+            only: ["tickets"],
             preserveState: true,
             preserveScroll: true,
-            only: ["tickets"],
         });
     };
 
-    const handlePageChange = (page) => {
-        updateFilters({ page });
+    const handleStatusChange = (newStatus) => {
+        updateFilters({ status: Array.from(newStatus)[0] ?? [] });
     };
 
-    const handleStatusChange = (value) => {
-        updateFilters({ status: Array.from(value)[0] || "", page: 1 });
+    const handleDepartmentChange = (newDepartment) => {
+        updateFilters({ department: Array.from(newDepartment)[0] ?? [] });
     };
 
-    const handleDepartmentChange = (value) => {
-        updateFilters({ department: Array.from(value)[0] || "", page: 1 });
+    const handleSearchChange = (newSearch) => {
+        updateFilters({ search: newSearch });
+    };
+
+    const handlePageChange = (newPage) => {
+        updateFilters({ page: newPage });
     };
 
     return (
@@ -70,11 +126,13 @@ export default function Index({ parameters, tickets, statuses, departments }) {
                         placeholder="Cari"
                         className="max-w-xs"
                         startContent={<Icon icon="solar:magnifer-linear" />}
+                        value={data.search}
+                        onValueChange={handleSearchChange}
                     />
                     <Select
                         aria-label="Status"
                         placeholder="Status"
-                        selectedKeys={filters.status}
+                        selectedKeys={data.status}
                         className="w-40"
                         onSelectionChange={handleStatusChange}
                     >
@@ -87,7 +145,7 @@ export default function Index({ parameters, tickets, statuses, departments }) {
                     <Select
                         aria-label="Department"
                         placeholder="Departemen"
-                        selectedKeys={filters.department}
+                        selectedKeys={data.department}
                         className="w-40"
                         onSelectionChange={handleDepartmentChange}
                     >
@@ -100,7 +158,14 @@ export default function Index({ parameters, tickets, statuses, departments }) {
                 </div>
 
                 <div className="border rounded-xl p-4">
-                    <Table removeWrapper aria-label="Ticket table">
+                    <Table
+                        removeWrapper
+                        aria-label="Ticket table"
+                        selectionMode="single"
+                        onRowAction={(key) =>
+                            router.get(route("tickets.edit", key))
+                        }
+                    >
                         <TableHeader>
                             <TableColumn>NO</TableColumn>
                             <TableColumn>TOPIK</TableColumn>
@@ -118,16 +183,7 @@ export default function Index({ parameters, tickets, statuses, departments }) {
                                     <TableCell>
                                         {item.reference_number}
                                     </TableCell>
-                                    <TableCell>
-                                        <Link
-                                            href={route(
-                                                "tickets.edit",
-                                                item.id
-                                            )}
-                                        >
-                                            {item.topic?.name ?? "N/A"}
-                                        </Link>
-                                    </TableCell>
+                                    <TableCell>{item.topic.name}</TableCell>
                                     <TableCell>
                                         {item.department.name}
                                     </TableCell>
@@ -153,7 +209,7 @@ export default function Index({ parameters, tickets, statuses, departments }) {
                         isCompact
                         showControls
                         color="primary"
-                        page={filters.page}
+                        page={data.page}
                         onChange={handlePageChange}
                     />
                 </div>

@@ -11,6 +11,7 @@ use App\Http\Resources\TopicResource;
 use App\Models\Department;
 use App\Models\Location;
 use App\Models\Topic;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class TopicController extends Controller
@@ -19,7 +20,9 @@ class TopicController extends Controller
     {
         Gate::authorize('viewAny', Topic::class);
 
-        $topics = Topic::with('department')->get();
+        $topics = Auth::user()->hasRole('super admin')
+            ? Topic::with('department')->get()
+            : Topic::with('department')->where('department_id', Auth::user()->department_id)->get();
 
         return inertia('Topics/Index', [
             'topics' => TopicResource::collection($topics)

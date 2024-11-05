@@ -9,7 +9,7 @@ use App\Http\Resources\UserResource;
 use App\Models\Department;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 
@@ -19,7 +19,9 @@ class UserController extends Controller
     {
         Gate::authorize('viewAny', User::class);
 
-        $users = User::with('department')->get();
+        $users = Auth::user()->hasRole('super admin')
+            ? User::with('department')->get()
+            : User::with('department')->where('department_id', Auth::user()->department_id)->get();
 
         return inertia('Users/Index', [
             'users' => UserResource::collection($users)

@@ -1,17 +1,13 @@
 import EmployeeLayout from "@/Layouts/EmployeeLayout";
 import { Head, useForm } from "@inertiajs/react";
-import {
-    Button,
-    Card,
-    CardBody,
-    Select,
-    SelectItem,
-    Textarea,
-} from "@nextui-org/react";
+import { Button, Select, SelectItem, Textarea } from "@nextui-org/react";
 
 export default function Show({ topic, categories, locations }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         topic_id: topic.id,
+        category: "",
+        location_id: "",
+        department_id: topic.department.id,
         description: "",
     });
 
@@ -54,9 +50,9 @@ export default function Show({ topic, categories, locations }) {
                                 label="Lokasi Kejadian"
                                 placeholder="Pilih lokasi kejadian"
                                 labelPlacement="outside"
-                                selectedKeys={[data.location]}
+                                selectedKeys={[data.location_id]}
                                 onChange={(e) =>
-                                    setData("location", e.target.value)
+                                    setData("location_id", e.target.value)
                                 }
                             >
                                 {locations.map((location) => (
